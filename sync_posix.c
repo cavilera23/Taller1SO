@@ -9,43 +9,47 @@ sem_t semAB;
 sem_t semBC;
 
 // Hilo A: Desarrollado por Integrante 1
-void* HiloA(void* arg) {
-    printf("[Hilo A] Paso 1: Iniciando preparación de datos...\n");
+void *HiloA(void *arg)
+{
+    printf("[Hilo A - Dev: Christian Vilera] Paso 1: Iniciando preparación de datos...\n");
     sleep(1); // Simula tiempo de procesamiento (1 segundo)
-    printf("[Hilo A] Paso 1: Datos listos. Liberando Hilo B.\n");
-    
+    printf("[Hilo A - Dev: Christian Vilera] Paso 1: Datos listos. Liberando Hilo B.\n");
+
     // Incrementar semáforo semAB (V / Signal)
     sem_post(&semAB);
     pthread_exit(NULL);
 }
 
 // Hilo B: Desarrollado por Integrante 2
-void* HiloB(void* arg) {
+void *HiloB(void *arg)
+{
     // Esperar señal de A (P / Wait)
     sem_wait(&semAB);
-    
+
     printf("[Hilo B] Paso 2: Procesando información de Hilo A...\n");
     sleep(1);
     printf("[Hilo B] Paso 2: Procesamiento terminado. Liberando Hilo C.\n");
-    
+
     // Incrementar semáforo semBC (V / Signal)
     sem_post(&semBC);
     pthread_exit(NULL);
 }
 
 // Hilo C: Desarrollado por Integrante 3
-void* HiloC(void* arg) {
+void *HiloC(void *arg)
+{
     // Esperar señal de B (P / Wait)
     sem_wait(&semBC);
-    
+
     printf("[Hilo C] Paso 3: Consolidando y mostrando resultados finales.\n");
     sleep(1);
     printf("[Hilo C] Paso 3: Proceso completo finalizado exitosamente.\n");
-    
+
     pthread_exit(NULL);
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
     pthread_t hA, hB, hC;
 
     // Inicializar semáforos POSIX
