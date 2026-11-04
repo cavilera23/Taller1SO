@@ -33,13 +33,20 @@ void *HiloA(void *arg)
 // --- INTEGRANTE 2: Hilo B ---
 void *HiloB(void *arg)
 {
+    printf("[Hilo B - Dev: Emanuel Siso] Paso 1: Iniciando preparación de datos...\n");
+
     int cifra_b = 25;
 
     // TO-DO Esperar a que Hilo C haya leído Cifra 1 y limpiado la variable
+    sem_wait(&semC_B);
 
     // TO-DO Proteger escritura con Mutex y actualizar variable compartida
+    pthread_mutex_lock(&mutex_variable);
+    variable_compartida = cifra_b;
+    pthread_mutex_unlock(&mutex_variable);
 
     // TO-DO Notificar a Hilo C
+    sem_post(&semB_C);
 
     return NULL;
 }
@@ -47,13 +54,27 @@ void *HiloB(void *arg)
 // --- INTEGRANTE 3: Hilo C ---
 void *HiloC(void *arg)
 {
+    printf("[Hilo C - Dev: Daniela Goncalves] Paso 1: Iniciando preparación de datos...\n");
+
     int cifra1 = 0, cifra2 = 0;
 
     // TO-DO --- PARTE 1: Procesar Cifra 1 ---
+    sem_wait(&semA_C); // Espera a que Hilo A escriba la Cifra 1
+
+    pthread_mutex_lock(&mutex_variable);
+    cifra1 = variable_compartida; // Lee Cifra 1
+    variable_compartida = 0;      // Limpia la variable compartida
+    pthread_mutex_unlock(&mutex_variable);
 
     // TO-DO Dar paso a Hilo B
+    sem_post(&semC_B);
 
     // TO-DO --- PARTE 2: Procesar Cifra 2 y Consolidar ---
+    sem_wait(&semB_C); // Espera a que Hilo B escriba la Cifra 2
+
+    pthread_mutex_lock(&mutex_variable);
+    cifra2 = variable_compartida; // Lee Cifra 2
+    pthread_mutex_unlock(&mutex_variable);
 
     // Renderizado final
     printf("\n================ RENDERIZADO DE RESULTADOS ================\n");
