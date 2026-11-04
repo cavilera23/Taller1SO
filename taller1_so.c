@@ -16,41 +16,44 @@ sem_t semC_B; // Notifica a B que C leyó y limpió la variable
 sem_t semB_C; // Notifica a C que B escribió Cifra 2
 
 // --- INTEGRANTE 1: Hilo A ---
-void* HiloA(void* arg) {
+void *HiloA(void *arg)
+{
     int cifra_a = 15;
-    
+
     // TO-DO Proteger escritura con Mutex e inicializar variable compartida
-    
-    
+    pthread_mutex_lock(&mutex_variable);
+    variable_compartida = cifra_a; // sección crítica
+    pthread_mutex_unlock(&mutex_variable);
+    sem_post(&semA_C);
+
     // TO-DO Notificar a Hilo C
     return NULL;
 }
 
 // --- INTEGRANTE 2: Hilo B ---
-void* HiloB(void* arg) {
+void *HiloB(void *arg)
+{
     int cifra_b = 25;
-    
+
     // TO-DO Esperar a que Hilo C haya leído Cifra 1 y limpiado la variable
-    
+
     // TO-DO Proteger escritura con Mutex y actualizar variable compartida
-   
-    
+
     // TO-DO Notificar a Hilo C
-	
+
     return NULL;
 }
 
 // --- INTEGRANTE 3: Hilo C ---
-void* HiloC(void* arg) {
+void *HiloC(void *arg)
+{
     int cifra1 = 0, cifra2 = 0;
 
     // TO-DO --- PARTE 1: Procesar Cifra 1 ---
-    
 
     // TO-DO Dar paso a Hilo B
 
     // TO-DO --- PARTE 2: Procesar Cifra 2 y Consolidar ---
-
 
     // Renderizado final
     printf("\n================ RENDERIZADO DE RESULTADOS ================\n");
@@ -62,22 +65,33 @@ void* HiloC(void* arg) {
     return NULL;
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
     pthread_t hA, hB, hC;
 
     // TO-DO Inicialización de Mutex y Semáforos
-
+    pthread_mutex_init(&mutex_variable, NULL);
+    sem_init(&semA_C, 0, 0);
+    sem_init(&semC_B, 0, 0);
+    sem_init(&semB_C, 0, 0);
 
     printf("=== INICIO DE LA PRUEBA DE FUEGO ===\n\n");
 
     // TO-DO Creación de hilos
-
+    pthread_create(&hA, NULL, HiloA, NULL);
+    pthread_create(&hB, NULL, HiloB, NULL);
+    pthread_create(&hC, NULL, HiloC, NULL);
 
     // TO-DO Esperar a que terminen
-
+    pthread_join(hA, NULL);
+    pthread_join(hB, NULL);
+    pthread_join(hC, NULL);
 
     // TO-DO Destrucción de recursos
-
+    sem_destroy(&semA_C);
+    sem_destroy(&semC_B);
+    sem_destroy(&semB_C);
+    pthread_mutex_destroy(&mutex_variable);
 
     printf("\n=== FIN DE LA EJECUCIÓN ===\n");
     return 0;
